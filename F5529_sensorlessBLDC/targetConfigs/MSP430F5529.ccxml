@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configurations XML_version="1.2" id="configurations_0">
+    <configuration XML_version="1.2" id="configuration_0">
+        <instance XML_version="1.2" desc="TI MSP430 USB1" href="connections/TIMSP430-USB.xml" id="TI MSP430 USB1" xml="TIMSP430-USB.xml" xmlpath="connections"/>
+        <connection XML_version="1.2" id="TI MSP430 USB1">
+            <instance XML_version="1.2" href="drivers/msp430_emu.xml" id="drivers" xml="msp430_emu.xml" xmlpath="drivers"/>
+            <platform XML_version="1.2" id="platform_0">
+                <instance XML_version="1.2" desc="MSP430F5529" href="devices/MSP430F5529.xml" id="MSP430F5529" xml="MSP430F5529.xml" xmlpath="devices"/>
+            </platform>
+        </connection>
+    </configuration>
+<configuration XML_version="1.2" id="UARTConnection_0">
+        <instance XML_version="1.2" desc="UARTConnection_0" href="connections/uart_connection.xml" id="UARTConnection_0" xml="uart_connection.xml" xmlpath="connections"/>
+        <connection XML_version="1.2" id="UARTConnection_0">
+            <instance XML_version="1.2" href="drivers/gti_uart_driver.xml" id="drivers" xml="gti_uart_driver.xml" xmlpath="drivers"/>
+            <platform XML_version="1.2" id="platform_0">
+                <instance XML_version="1.2" desc="msp430" href="devices/MSP430F5529.xml" id="msp430" xml="MSP430F5529.xml" xmlpath="devices"/>
+                <device HW_revision="1.0" XML_version="1.2" description="MSP430F5529" id="msp430" partnum="MSP430F5529" simulation="no">
+                    <cpu HW_revision="1.0" XML_version="1.2" desc="MSP430_0" description="MSP430 CPU" deviceSim="false" id="MSP430" isa="MSP430">
+                        <property Type="stringfield" Value="COM7" id="COM Port"/>
+                    <property Type="stringfield" Value="115200" id="Baud Rate"/>
+                    </cpu>
+                </device>
+            </platform>
+        </connection>
+    </configuration>
+</configurations>
