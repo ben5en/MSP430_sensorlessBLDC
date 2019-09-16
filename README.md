@@ -37,3 +37,5 @@ with a suitable routing.
 
 _Source: some of the routines are based on routines of the "math blocks" found in the
 controlSuite for C2000 controllers._
+
+![Alternativtext](https://github.com/ben5en/MSP430_sensorlessBLDC/blob/master/msp430_bldc_small.jpg)
