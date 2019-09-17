@@ -28,6 +28,7 @@
 //
 //	target:		Texas Instruments MSP430
 //
+// ######################################################################
 //  Info:
 //  This software provides a simple example of a cascaded speed control as a sensorless
 //  block commutation on an MSP430F5529 Launchpad in combination with a DRV8323 BoosterPack.
@@ -65,6 +66,7 @@
 //
 //  Source: some of the routines are based on routines of the "math blocks" found in the
 //  controlSuite for C2000 controllers.
+// ######################################################################
 //
 // ----------------------------------------------------------------------
 // 	history
@@ -110,7 +112,7 @@ void main (void)
 
     // ----------------------------------------------------------------------
     //  UART Monitor is used for debugging
-    //  More Infos can be found here: https://github.com/ben5en/MSP430_UartMonitor
+    //  More information can be found here: https://github.com/ben5en/MSP430_UartMonitor
     ClearBufferRelatedParam();
 
     //  UART RX is ISR - handled and TX is handled in main loop.

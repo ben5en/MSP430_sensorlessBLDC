@@ -55,12 +55,13 @@ extern "C" {
 // ----------------------------------------------------------------------
 typedef volatile struct
 {
-    _q       LowLimit_pu;       // Parameter: Minimum limit (pu)
-    _q       HighLimit_pu;      // Parameter: Maximum limit (pu)
-    _q       TargetValue_pu;    //
-    _q       SetpointValue_pu;  //
-    _q       Out_pu;            //
-    uint16_t Delay;             // Parameter: ramp delay for next iteration
+    _q       LowLimit_pu;       // Parameter: Minimum limit [pu]
+    _q       HighLimit_pu;      // Parameter: Maximum limit [pu]
+    _q       TargetValue_pu;    // Input: Target value [pu]
+    _q       SetpointValue_pu;  // Parameter: Setpoint value [pu]
+    _q       Out_pu;            // Output: ramp output value [pu]
+    _q       StepWidth;         // Parameter: ramp step width [global Q]
+    uint16_t DelayMax;          // Parameter: ramp delay for next iteration
     uint16_t DelayCnt;          // Variable: Counter for delay
     bool     EqualFlag;         // Output: Flag output (Q0) - independently with global Q
 } RAMP_t;
@@ -77,7 +78,8 @@ inline void RAMP_objectInit(volatile RAMP_t *ramp_obj)
     obj->TargetValue_pu = 0;
     obj->SetpointValue_pu = 0;
     obj->Out_pu = 0;
-    obj->Delay = 10;
+    obj->StepWidth = _Q(0.001);
+    obj->DelayMax = 10;
     obj->DelayCnt = 0;
     obj->EqualFlag = false;
 }
@@ -90,19 +92,19 @@ inline void RAMP_run(volatile RAMP_t *ramp_obj)
 
     _q error = obj->TargetValue_pu - obj->SetpointValue_pu;
 
-    if (_Qabs(error) >= _Q(0.001))
+    if (_Qabs(error) >= obj->StepWidth)
     {
         obj->EqualFlag = false;
 
-        if (++obj->DelayCnt >= obj->Delay)
+        if (++obj->DelayCnt >= obj->DelayMax)
         {
             if (obj->TargetValue_pu >= obj->SetpointValue_pu)
             {
-                obj->SetpointValue_pu += _Q(0.001);
+                obj->SetpointValue_pu += obj->StepWidth;
             }
             else
             {
-                obj->SetpointValue_pu -= _Q(0.001);
+                obj->SetpointValue_pu -= obj->StepWidth;
             }
             obj->SetpointValue_pu  = _Qsat(obj->SetpointValue_pu, obj->HighLimit_pu, obj->LowLimit_pu);
             obj->DelayCnt = 0;

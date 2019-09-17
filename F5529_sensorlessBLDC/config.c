@@ -181,7 +181,7 @@ void UCS_init(void)
 
     if (returnValue == STATUS_FAIL)
     {
-        while( 1 );
+        while(1); // TODO: something more useful could be happen here...
     }
 
     // Initializes the XT2 crystal oscillator with no timeout.
@@ -194,7 +194,7 @@ void UCS_init(void)
 
     if (returnValue == STATUS_FAIL)
     {
-        while( 1 );
+        while(1); // TODO: something more useful could be happen here...
     }
 
     // ----------------------------------------------------------------------

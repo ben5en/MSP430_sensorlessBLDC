@@ -150,6 +150,8 @@ inline CMTN_delay30deg_run(volatile CMTN_t *cmtn_obj)
             obj->RevPeriod = 0x7FFF + obj->Tmp;
         }
 
+        //  factor 1/12 comes from 30° delay at one full turn (360°):
+        //  1/12 ^= 30/360
         obj->CmtnDelay = obj->RevPeriod/12; // devision quotient
         obj->GPR1_COM_TRIG = obj->RevPeriod - obj->CmtnDelay*12; // devision reminder
         if(obj->GPR1_COM_TRIG >= 6)
@@ -272,14 +274,14 @@ inline void CMTN_run(volatile CMTN_t *cmtn_obj,
 
     obj->Trigger = false;
 
-    // obj->DelayTaskPointer = 1 for chech obj->Trigger
+    // obj->DelayTaskPointer = 1 for check obj->Trigger
     if(obj->DelayTaskPointer > 0)
     {
         if(obj->ZcTrig != 0)
         {
-            // Substract NoiseWindowMax to compensate the advanced zero-crossing validation point
+            // Subtract NoiseWindowMax to compensate the advanced zero-crossing validation point
             obj->CmtnDelayCounter = obj->CmtnDelay - obj->NoiseWindowMax;
-            obj->DelayTaskPointer = 0;     /* obj->DelayTaskPointer = 0 for #COUNT_DWN*/
+            obj->DelayTaskPointer = 0;
         }
     }
     else     // obj->DelayTaskPointer = 0 for count down

@@ -32,7 +32,7 @@ extern "C" {
 //	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //	SOFTWARE.
 //
-//	target:		Texas Instruments C2000
+//	target:		Texas Instruments MSP430
 //
 // ----------------------------------------------------------------------
 // 	history
@@ -52,16 +52,16 @@ extern "C" {
 // ----------------------------------------------------------------------
 typedef enum
 {
-    STATUS_stop = 0,        //!< state = stop
-    STATUS_run              //!< state = start
+    STATUS_stop = 0,        // state = stop
+    STATUS_run              // state = start
 }STAUTS_pwr_flag_e;
 
 typedef enum
 {
-    STATUS_stepResponse = 0, //!< operation mode = stepResponse, only for adjustments
-    STATUS_lock,             //!< operation mode = lock
-    STATUS_alignment,        //!< operation mode = alignment
-    STATUS_spin              //!< operation mode = spin
+    STATUS_stepResponse = 0, // operation mode = stepResponse, only for adjustments
+    STATUS_lock,             // operation mode = lock
+    STATUS_alignment,        // operation mode = alignment
+    STATUS_spin              // operation mode = spin
 }STAUTS_operation_mode_e;
 
 typedef volatile struct

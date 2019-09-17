@@ -32,7 +32,7 @@ extern "C" {
 //	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //	SOFTWARE.
 //
-//	target:		Texas Instruments C2000
+//	target:		Texas Instruments MSP430
 //
 // ----------------------------------------------------------------------
 // 	history
@@ -55,9 +55,9 @@ extern "C" {
 // ----------------------------------------------------------------------
 typedef struct
 {
-    uint16_t TimerBaseAddress;
-    uint16_t TimerCompareRegister;
-    uint16_t DutyMax;
+    uint16_t TimerBaseAddress;      // Parameter: Base Address for driverlib funtion
+    uint16_t TimerCompareRegister;  // Parameter: Timer Compare Register for driverlib function
+    uint16_t DutyMax;               // Parameter: maximum Duty value
 }BLDC_1xPWM_t;
 
 // ----------------------------------------------------------------------
@@ -76,8 +76,8 @@ inline void BLDC_PWM_objectInit(volatile BLDC_1xPWM_t *bldc_pwm_obj,
 }
 
 // ----------------------------------------------------------------------
-//  handles DRV8323 1x PWM mode. PWM output on TimerAx
-//  sets pin output high or low corresponding to the commutation table.
+//  handles DRV8323 1x PWM mode. PWM output on TimerAx pin.
+//  Sets 3 selected pins high or low corresponding to the commutation table.
 inline void BLDC_1xPWM_run(volatile BLDC_1xPWM_t *bldc_pwm_obj,
                            volatile CMTN_STATE_T cmtnState,
                            uint16_t duty)

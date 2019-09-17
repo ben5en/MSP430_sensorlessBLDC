@@ -28,6 +28,12 @@
 //
 //	target:		Texas Instruments MSP430
 //
+// ######################################################################
+//  Use the "ProgramModelUart" for a variable view during runtime:
+//  This is already implemented in this software. More informations:
+//  https://github.com/ben5en/MSP430_UartMonitor
+// ######################################################################
+//
 // ----------------------------------------------------------------------
 // 	history
 // ----------------------------------------------------------------------
@@ -81,7 +87,7 @@ volatile struct DMA_results Dma;
 
 // ----------------------------------------------------------------------
 //  all state objects, variables and helpers:
-volatile STATUS_t     Status;
+volatile STATUS_t     Status;       // load this into the expression window in debug mode
 volatile CMTN_STATE_T CmtnState;
 volatile bool         CmtnTrigger;
 
@@ -106,21 +112,24 @@ volatile CMTN_t          Cmtn;
 
 // ----------------------------------------------------------------------
 //  others:
-volatile _q       SpeedTarget_pu;
+volatile _q       SpeedTarget_pu;   // load this into the expression window in debug mode
 volatile _q       Speed_pu;
 volatile uint16_t Speed_rpm;
 volatile uint16_t SpeedCntr;
 volatile uint16_t SpeedCntMax;
-volatile enum SpeedState_e
+
+enum SpeedState_e
 {
     Speed_idle = 0,
     Speed_process
-} SpeedState;
+};
+
+volatile enum SpeedState_e SpeedState;
 
 // ----------------------------------------------------------------------
 // 	functions
 // ----------------------------------------------------------------------
-//  reset all the variables of BLDC_control
+//  reset all the variables of BLDC motor control, initialize and link DMA
 void BLDC_initWithDMA()
 {
     // ----------------------------------------------------------------------
@@ -168,13 +177,14 @@ void BLDC_initWithDMA()
     // ----------------------------------------------------------------------
     //  Initialize all functional, variables and helpers:
     RAMP_objectInit(&SpeedRamp);
-    SpeedRamp.Delay        = DEVICE_RAMP_ACC_STEPS;
+    SpeedRamp.DelayMax     = DEVICE_RAMP_ACC_STEPS;
+    SpeedRamp.StepWidth    = _Q(0.001);
     SpeedRamp.LowLimit_pu  = _Q(0.0);
     SpeedRamp.HighLimit_pu = _Q(1.0);
 
     STEP_objectInit(&Step);
     Step.CntMax = (DEVICE_PWM_FREQUENCY_kHz*1000) / 2;  // 0.5 Sec
-    Step.IdcRef_pu = _Q(0.25);
+    Step.IdcRef_pu = _Q(0.25);  // 25% of DEVICE_SHUNT_CURRENT
 
     OPENLOOP_objectInit(&OpenLoop);
     OpenLoop.Delay         = (uint16_t)OPENLOOP_DELAY_TICKS;
@@ -188,7 +198,7 @@ void BLDC_initWithDMA()
     //  current level or to the parasitic inductance and capacitance of the power board. This can lead to a
     //  misreading of the computed neutral voltage. This is overcomed by discarding the first few scans
     //  of the Bemf once a new phase commutation occurs.
-    Cmtn.NWDelayThres = 10;
+    Cmtn.NWDelayThres = 6;
     Cmtn.NWDelta = 2;
     Cmtn.NoiseWindowMax = Cmtn.NWDelayThres - Cmtn.NWDelta;
 
@@ -198,6 +208,9 @@ void BLDC_initWithDMA()
     Speed_pu  = 0;
     Speed_rpm = 0;
 
+    //  Speed control is handled in the main loop @ 5ms.
+    //  Using a counter and a SpeedState - flag in the ISR handles the period
+    //  of the speed control loop in main.c
     SpeedCntMax = DEVICE_ISR_FREQUENCY_kHz*1000*0.005; // 5ms;
     SpeedCntr   = 0;
     SpeedState = Speed_idle;
@@ -210,17 +223,18 @@ void BLDC_initWithDMA()
     DMA_initParam dmaInitParam = {0};
     dmaInitParam.channelSelect = DMA_CHANNEL_0;
     dmaInitParam.transferModeSelect = DMA_TRANSFER_REPEATED_BLOCK;
-    dmaInitParam.transferSize = 8;
+    dmaInitParam.transferSize = 8; // 8 ADC channels are used in this example
     dmaInitParam.triggerSourceSelect = DMA_TRIGGERSOURCE_24;    // Use DMA Trigger Source 24 (ADC12xIFG)
     dmaInitParam.transferUnitSelect = DMA_SIZE_SRCWORD_DSTWORD;
     dmaInitParam.triggerTypeSelect = DMA_TRIGGER_RISINGEDGE;
     DMA_init(&dmaInitParam);
 
+    // transfer a block of data from the ADC memory...
     DMA_setSrcAddress(DMA_CHANNEL_0,
                       ADC12_A_getMemoryAddressForDMA(ADC12_A_BASE,
                                                      ADC12_A_MEMORY_0),
                                                      DMA_DIRECTION_INCREMENT);
-
+    // to the global structure "Dma"
     DMA_setDstAddress(DMA_CHANNEL_0,
                       (uint32_t)(uintptr_t)&Dma.VphaseAs_dma, DMA_DIRECTION_INCREMENT);
 
@@ -236,6 +250,7 @@ void BLDC_initWithDMA()
 //  This routine takes ~38us in STATUS_run and STATUS_spin. This is the
 //  maximum duration allowed @16kHz PWM frequency. Otherwise we would
 //  miss / delay the TIMER2_A0 ISR to start the ADC correctly aligned.
+//  For more information, see the info-text at the main.c file.
 void BLDC_runCmtnCntl(void)
 {
     GPIO_setOutputHighOnPin(GPIO_LED_RED);  //  toggle for debug / timing measurement
@@ -245,10 +260,11 @@ void BLDC_runCmtnCntl(void)
     uint16_t pwmTicks;
 
     // ------------------------------------------------------------------------------
-    //  Get the ADC values:
+    //  Get the ADC values and transform them to per unit values:
     Vphase_pu.As = _Q12toQ(Dma.VphaseAs_dma);
     Vphase_pu.Bs = _Q12toQ(Dma.VphaseBs_dma);
     Vphase_pu.Cs = _Q12toQ(Dma.VphaseCs_dma);
+
     VdcBus_pu    = _Q12toQ(Dma.VdcBus_dma);
     Vpoti_pu     = _Q12toQ(Dma.Vpoti_dma);
 
@@ -394,7 +410,7 @@ void BLDC_runCmtnCntl(void)
             default: break;
         }
         // ------------------------------------------------------------------------------
-        //
+        //  ramp up or down the speed target value
         RAMP_run(&SpeedRamp);
 
         // ------------------------------------------------------------------------------

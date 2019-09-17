@@ -187,10 +187,7 @@ extern "C" {
 
 // scale to per-unit
 #define DEVICE_MAX_CURRENT_PU               (DEVICE_MAX_CURRENT_A / DEVICE_SHUNT_CURRENT_A)
-#define DEVICE_MAX_AC_VOLTAGE_PU            (DEVICE_MAX_AC_VOLTAGE_V / DEVICE_AC_VOLTAGE_V)
 #define DEVICE_MAX_DC_VOLTAGE_PU            (DEVICE_MAX_DC_VOLTAGE_V / DEVICE_DC_VOLTAGE_V)
-#define DEVICE_MAX_DC_VOLTAGE_CHOPPER_PU    (DEVICE_MAX_DC_VOLTAGE_CHOPPER_V / DEVICE_DC_VOLTAGE_V)
-#define DEVICE_MIN_AC_VOLTAGE_PU            (DEVICE_MIN_AC_VOLTAGE_V / DEVICE_AC_VOLTAGE_V)
 
 // ----------------------------------------------------------------------
 // Define the device pin mappings

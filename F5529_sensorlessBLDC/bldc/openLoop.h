@@ -82,7 +82,8 @@ inline void OPENLOOP_objectInit(volatile OPENLOOP_t *ramp3_obj)
 }
 
 // ----------------------------------------------------------------------
-//
+//  this is a ramp-down function for open-loop start up.
+//  the function triggers with a decreasing period.
 inline void OPENLOOP_run(volatile OPENLOOP_t *ramp3_obj)
 {
     OPENLOOP_t *obj = (OPENLOOP_t*)ramp3_obj;
@@ -95,16 +96,16 @@ inline void OPENLOOP_run(volatile OPENLOOP_t *ramp3_obj)
     }
     else
     {
-        obj->DelayCnt++;
+        obj->DelayCnt++;    // ramp down delay counter
 
         if (obj->DelayCnt >= obj->Delay)
         {
             obj->DelayCnt = 0;
-            obj->SetpointValue--;
+            obj->SetpointValue--;   // decreasing of trigger period
 
             if (obj->SetpointValue < obj->Min)
             {
-                obj->SetpointValue = obj->Min;
+                obj->SetpointValue = obj->Min;  // limit to min period
             }
         }
     }

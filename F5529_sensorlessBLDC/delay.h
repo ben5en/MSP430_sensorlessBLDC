@@ -32,7 +32,7 @@ extern "C" {
 //	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //	SOFTWARE.
 //
-//	target:		Texas Instruments C2000
+//	target:		Texas Instruments MSP430
 //
 // ----------------------------------------------------------------------
 // 	history
